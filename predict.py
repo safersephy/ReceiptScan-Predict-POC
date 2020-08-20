@@ -11,6 +11,8 @@ from detectron2.config import get_cfg
 from detectron2.utils.visualizer import Visualizer
 from detectron2.data import MetadataCatalog
 
+import json
+
 #register dataset
 from detectron2.data.datasets import register_coco_instances
 register_coco_instances("receipts", {}, "../receipttrain/content/datasets/receipts-1.json", "../receipttrain/content/datasets/receipts")
@@ -98,13 +100,18 @@ ocr_agent = lp.TesseractAgent(languages='eng+nld')
     # to install the OCR components in layoutparser:
     # pip install layoutparser[ocr]
 
+
+
+receipt_dict = []
 for block in text_blocks:
    segment_image = (block
                      .pad(left=3, right=3, top=3, bottom=3)
                      .crop_image(im))
-    # add padding in each image segment can help
-    # improve robustness
-
    text = ocr_agent.detect(segment_image)
    block.set(text=text, inplace=True)
    print(block.type, text, end='\n---\n')
+   receipt_dict  += [[block.type,text]]
+
+receipt_dict = json.dumps(receipt_dict)
+
+print(receipt_dict)
